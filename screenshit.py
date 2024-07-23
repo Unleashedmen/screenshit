@@ -90,7 +90,7 @@ def write_html(results, output_html):
     soup = BeautifulSoup("""
     <html>
     <head>
-        <title>Scan Results</title>
+        <title>Screenshit - Results</title>
         <style>
             body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f9; color: #333; }
             h1 { color: #333; text-align: center; }
@@ -105,7 +105,7 @@ def write_html(results, output_html):
     </head>
     <body>
         <div class="header">
-            <h1>Scan Results</h1>
+            <h1>Screenshit - Results</h1>
         </div>
         <div class="content">
         </div>
