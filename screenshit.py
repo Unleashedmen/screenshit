@@ -8,14 +8,14 @@ import os
 import builtwith
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-# Configuración del driver de Selenium
+# Selenium driver configuration
 chrome_options = Options()
-chrome_options.add_argument("--headless")  # Ejecuta el navegador en modo headless (sin interfaz gráfica)
-service = Service('/usr/local/bin/chromedriver')  # Cambia esta ruta por la ruta a tu ChromeDriver
+chrome_options.add_argument("--headless")  # Run the browser in headless mode (no GUI)
+service = Service('/usr/local/bin/chromedriver')  # Change this path to your ChromeDriver path
 
 def check_http_service(url):
     try:
-        response = requests.get(url, timeout=3)  # Reducir el timeout si es posible
+        response = requests.get(url, timeout=3)  # Reduce the timeout if possible
         if response.status_code == 200:
             return True, response.url, response.headers
         else:
@@ -25,7 +25,7 @@ def check_http_service(url):
 
 def take_screenshot(url, output_path):
     driver = webdriver.Chrome(service=service, options=chrome_options)
-    driver.set_window_size(1920, 1080)  # Tamaño de pantalla de computadora
+    driver.set_window_size(1920, 1080)  # Computer screen size
     driver.get(url)
     driver.save_screenshot(output_path)
     driver.quit()
@@ -38,7 +38,7 @@ def detect_technologies(url):
             tech_list.extend(items)
         return tech_list
     except Exception as e:
-        print(f"Error detectando tecnologías para {url}: {e}")
+        print(f"Error detecting technologies for {url}: {e}")
         return []
 
 def check_security_headers(headers):
@@ -68,7 +68,7 @@ def process_domain(domain, ports):
             results.append({
                 'domain': domain,
                 'port': port,
-                'status': 'Servicio disponible',
+                'status': 'Service available',
                 'screenshot': screenshot_path,
                 'redirected_url': redirected_url,
                 'technologies': technologies,
@@ -78,7 +78,7 @@ def process_domain(domain, ports):
             results.append({
                 'domain': domain,
                 'port': port,
-                'status': 'No se encuentra ningún servicio http en este puerto',
+                'status': 'No HTTP service found on this port',
                 'screenshot': None,
                 'redirected_url': None,
                 'technologies': None,
@@ -90,7 +90,7 @@ def write_html(results, output_html):
     soup = BeautifulSoup("""
     <html>
     <head>
-        <title>Screenshit - Scan</title>
+        <title>Scan Results</title>
         <style>
             body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f9; color: #333; }
             h1 { color: #333; text-align: center; }
@@ -105,7 +105,7 @@ def write_html(results, output_html):
     </head>
     <body>
         <div class="header">
-            <h1>Screenshit - Scan</h1>
+            <h1>Scan Results</h1>
         </div>
         <div class="content">
         </div>
@@ -119,31 +119,31 @@ def write_html(results, output_html):
         domain_info = soup.new_tag('div', **{'class': 'result'})
 
         domain_info.append(soup.new_tag('h2'))
-        domain_info.h2.string = f"Dominio/IP: {result['domain']} - Puerto: {result['port']}"
+        domain_info.h2.string = f"Domain/IP: {result['domain']} - Port: {result['port']}"
 
         status = soup.new_tag('p')
-        status.string = f"Estado: {result['status']}"
+        status.string = f"Status: {result['status']}"
         domain_info.append(status)
 
         if result['redirected_url']:
             redirected = soup.new_tag('p')
-            redirected.string = f"Redireccionado a: {result['redirected_url']}"
+            redirected.string = f"Redirected to: {result['redirected_url']}"
             domain_info.append(redirected)
 
         if result['screenshot']:
-            img_tag = soup.new_tag('img', src=result['screenshot'], alt="Captura de pantalla", **{'class': 'screenshot'})
+            img_tag = soup.new_tag('img', src=result['screenshot'], alt="Screenshot", **{'class': 'screenshot'})
             domain_info.append(img_tag)
 
         if result['technologies']:
             tech_list = ', '.join(result['technologies'])
             technologies = soup.new_tag('p', **{'class': 'technologies'})
-            technologies.string = f"Tecnologías detectadas: {tech_list}"
+            technologies.string = f"Detected Technologies: {tech_list}"
             domain_info.append(technologies)
 
         if result['missing_headers']:
             headers = ', '.join(result['missing_headers'])
             headers_info = soup.new_tag('p', **{'class': 'headers'})
-            headers_info.string = f"Cabeceras de seguridad faltantes: {headers}"
+            headers_info.string = f"Missing Security Headers: {headers}"
             domain_info.append(headers_info)
 
         body.append(domain_info)
@@ -169,18 +169,17 @@ def main(input_file, output_html, additional_ports):
             try:
                 result = future.result()
                 results.extend(result)
-                print(f"Procesado: {domain}")
+                print(f"Processed: {domain}")
                 write_html(results, output_html)
             except Exception as exc:
-                print(f"{domain} generó una excepción: {exc}")
+                print(f"{domain} generated an exception: {exc}")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Escanea dominios/IPs para servicios HTTP y HTTPS.')
-    parser.add_argument('input_file', help='Archivo de entrada con la lista de dominios/IPs')
-    parser.add_argument('-o', '--output', default='resultados.html', help='Archivo HTML de salida')
-    parser.add_argument('-p', '--ports', nargs='+', type=int, default=[], help='Lista de puertos adicionales para escanear')
+    parser = argparse.ArgumentParser(description='Scan domains/IPs for HTTP and HTTPS services.')
+    parser.add_argument('input_file', help='Input file with the list of domains/IPs')
+    parser.add_argument('-o', '--output', default='results.html', help='Output HTML file')
+    parser.add_argument('-p', '--ports', nargs='+', type=int, default=[], help='Additional ports to scan')
 
     args = parser.parse_args()
 
     main(args.input_file, args.output, args.ports)
-
