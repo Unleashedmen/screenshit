@@ -11,6 +11,10 @@
 # screenshit
 Simple screenshot collector that allows you to scan domains or IPs and check HTTP/HTTPS services on ports 80 and 443 (by default), as well as additional specified ports. The result includes screenshots of the pages, detected technologies, and verification of HTTP security headers. The results are stored in an HTML file.
 
+<p align="center" width="100%">
+    <img width="75%" src="example.png"> 
+</p>
+
 ## Features
 
 - Scanning HTTP/HTTPS ports (80 and 443) and additional specified ports.
